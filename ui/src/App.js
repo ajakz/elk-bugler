@@ -20,12 +20,6 @@ export default function App() {
       setUserBugle(e.target.value);
   };
 
-  const postBugle = () => {
-      publishBugle(userBugle);
-      setUserBugle("");
-      refreshTimeline();
-  }
-
   const bugleAudioPath = () => {
       return `/elk-bugle-sounds-0${Math.floor(Math.random() * 5) + 1}.mp3`;
   }
@@ -40,7 +34,7 @@ export default function App() {
       }
       else if(audio.paused && !audio.ended) {
           audio.play();
-      }
+      } 
       else {
           audio.pause();
       }
@@ -48,40 +42,48 @@ export default function App() {
 
   const [elkerList, setElkerList] = useState([]);
 
+  const refreshElkers = async () => {
+      const elkers = await fetchAllElkers();
+      setElkerList(elkers);
+  }
+
   // On mount, GET user list. Passing empty array, this runs only once at mounting -- refreshing
   // the list is then done only by button click to avoid fetching data more than necessary
   useEffect(() => {
-      setElkerList(fetchAllElkers());
+      refreshElkers();
   }, []);
 
   const [bugleList, setBugleList] = useState([]);
+  
+  const refreshTimeline = async () => {
+      const timeline = await fetchTimeline();
+      setBugleList(timeline);
+  }
+
+  const postBugle = async () => {
+      await publishBugle(userBugle);
+      setUserBugle("");
+      await refreshTimeline();
+  }
 
   // On mount, GET user's timeline. Passing empty array, this runs only once at mounting -- refreshing
   // the list is then done only by button click to avoid fetching data more than necessary
   useEffect(() => {
-      setBugleList(fetchTimeline());
+      refreshTimeline();
   }, []);
 
-  const refreshTimeline = () => {
-      console.log("refresh clicked");
-      let timeline = fetchTimeline();
-      console.log(timeline);
-      setBugleList(fetchTimeline);
-  }
-
-  const updateFollowing = function(userId, following) {
+  const updateFollowing = async function(userId, following) {
        if(following) {
-          unfollow(userId);
-          refreshTimeline();
-       }
+          await unfollow(userId);
+       }  
        else {
-          follow(userId);
-          refreshTimeline();
-       }
+          await follow(userId);
+       } 
+       await refreshElkers();
+       await refreshTimeline();
   }
 
   const bugleCard = function (bugleData) {
-      console.log(`bugleCard called with ${JSON.stringify(bugleData)}`);
       return (
           <React.Fragment>
               <Paper id={bugleData.id} elevation={3} sx={{ p: 1 }}>
@@ -93,20 +95,18 @@ export default function App() {
   }
 
   const elkerCard = function (elkerData) {
-      console.log(`elkerCard called with ${JSON.stringify(elkerData)}`);
       const buttonText = elkerData.following ? 'Unfollow' : 'Follow';
 
       return (
           <React.Fragment>
           <Paper id={elkerData.id} elevation={3} sx={{ p: 1 }}>
               <Typography variant="h5">{elkerData.username}</Typography>
-              {/* FIXME : Shouldn't be returning self from service */}
-              <Button variant="text" disabled={elkerData.id === userId} onClick={() => updateFollowing(elkerData.id, elkerData.following)}>{buttonText}</Button>
+              <Button variant="text" onClick={() => updateFollowing(elkerData.elkerId, elkerData.following)}>{buttonText}</Button>
           </Paper>
       </React.Fragment>
       );
   }
-
+  
   const bugles = bugleList.map(bugle => bugleCard(bugle));
 
   const elkers = elkerList.map(elker => elkerCard(elker));
@@ -130,9 +130,9 @@ export default function App() {
             </Stack>
             <Divider sx={{ mt: 4}}>TIMELINE</Divider>
             <Box textAlign="center">
-                <Button
-                    variant="contained"
-                    startIcon={<RefreshIcon />}
+                <Button 
+                    variant="contained" 
+                    startIcon={<RefreshIcon />} 
                     sx={{ mt: 2, mb: 3 }}
                     onClick={refreshTimeline}>
                         Refresh
