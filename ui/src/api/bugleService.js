@@ -1,131 +1,124 @@
 // UserId for ProjectCanary user. In the real world this should be in a token after login
 export const userId = 'e81c4664-6134-47af-b45b-c4910cbea281';
 
-export const fetchAllElkers = () => {
+export const fetchAllElkers = async () => {
     let results;
 
-    results = [
-        {
-            id: '1910672c-b26f-4ab5-9804-1b0f6ea504ac',
-            username: 'Trustwell',
-            following: true
-            // following: []
-        },
-        {
-            id: '8a7ad5e8-4d44-4778-a9d2-03db6b813e98',
-            username: 'Wild Goats',
-            following: false
-            // following: ['e81c4664-6134-47af-b45b-c4910cbea281','1910672c-b26f-4ab5-9804-1b0f6ea504ac','e5d288fb-fe61-47b9-9680-308970bc5e4a']
-        },
-        {
-            id: 'e5d288fb-fe61-47b9-9680-308970bc5e4a',
-            username: 'Lone Tusk',
-            following: false
-            // following: []
-        },
-        {
-            id: 'e81c4664-6134-47af-b45b-c4910cbea281',
-            username: 'ProjectCanary',
-            following: true
-            // following: ['1910672c-b26f-4ab5-9804-1b0f6ea504ac']
-            // FIXME: don't return self from service
-        }
-    ];
+    // Some example data:
+
+    // results = [
+    //     {
+    //         elkerId: '1910672c-b26f-4ab5-9804-1b0f6ea504ac',
+    //         username: 'Trustwell',
+    //         following: true
+    //     },
+    //     {
+    //         elkerId: '8a7ad5e8-4d44-4778-a9d2-03db6b813e98',
+    //         username: 'Wild Goats',
+    //         following: false
+    //     },
+    //     {
+    //         id: 'e5d288fb-fe61-47b9-9680-308970bc5e4a',
+    //         username: 'Lone Tusk',
+    //         following: false
+    //     }
+    // ];
 
     // fetch('localhost/api/elkers?viewFor=${userId}')
     //     .then(response => response.json())
     //     .then(json => results = json)
-    //     .catch(error => console.log(error));
+    //     .catch(error => console.log(error));    
+    
+
+    await fetch(`http://localhost:8080/api/v1/elkers?userId=${userId}`)
+        .then(response => {
+            results = response.json();
+        })
+        .catch(error => console.log(error)); 
+
     return results;
 };
 
 
-export const fetchTimeline = () => {
-    let results;
+export const fetchTimeline = async () => {
+    let results = [];
 
-    results = [
-        {
-            id: '5e21470a-1cae-42bb-b611-827cf978e9c9',
-            timestamp: '2023-01-05 01:49:04-07',
-            userId: 'ProjectCanary',
-            username: 'ProjectCanary',
-            content: 'abc123'
-        },
-        {
-            id: '5e21470a-1cae-42bb-b611-827cf978e9c7',
-            timestamp: '2023-02-05 01:49:04-07',
-            userId: 'ProjectCanary',
-            username: 'ProjectCanary',
-            content: 'hats off'
-        },
-        {
-            id: '5e21470a-1cae-42bb-b611-827cf978e9c8',
-            timestamp: '2023-01-25 01:49:04-07',
-            userId: 'ProjectCanary',
-            username: 'ProjectCanary',
-            content: 'hello world'
+    // Some example data:
+
+    // results = [
+    //     {
+    //         bugleId: "e4a344ca-4902-4b95-9157-710d7ba5a140",
+    //         elkerId: "e81c4664-6134-47af-b45b-c4910cbea281",
+    //         username: "ProjectCanary",
+    //         timestamp: "2022-09-22T21:49:12Z",
+    //         content: "Trustwell Certification"
+    //     },
+    //     {
+    //         bugleId: "e5897753-2cce-4da6-8c79-f268dfe69dbe",
+    //         elkerId: "e81c4664-6134-47af-b45b-c4910cbea281",
+    //         username: "ProjectCanary",
+    //         timestamp: "2022-09-22T21:25:00Z",
+    //         content: "Continous Monitoring"
+    //     },
+    //     {
+    //         bugleId: "95282981-0526-4e04-a7ba-bb6866e347e9",
+    //         elkerId: "e81c4664-6134-47af-b45b-c4910cbea281",
+    //         username: "ProjectCanary",
+    //         timestamp: "2022-09-22T21:00:12Z",
+    //         content: "Responsibily Sourced GaS!"
+    //     }
+    // ]
+
+    await fetch(`http://localhost:8080/api/v1/timeline?userId=${userId}`)
+        .then(response => {
+            results = response.json();
+        })
+        .catch(error => console.log(error)); 
+
+    return results;
+};
+
+
+export const publishBugle = async function(bugle) {
+    await fetch('http://localhost:8080/api/v1/bugle', {
+        method: 'POST',
+        body: JSON.stringify({
+            elkerId: userId,
+            content: bugle
+        }),
+        headers: {
+            'Content-type': 'application/json'
         }
-    ]
-
-    // fetch(`localhost/api/timeline?viewFor=${userId}`)
-    //     .then(response => response.json())
-    //     .then(json => results = json)
-    //     .catch(error => console.log(error));
-    return results;
+    })
+        .catch(error => console.log(error));  
 };
 
 
-export const publishBugle = function(bugle) {
-    console.log(`POSTed ${bugle}`)
-    // fetch(`localhost/api/bugles`, {
-    //     method: 'POST',
-    //     body: JSON.stringify({
-    //         userId: {userId},
-    //         content: {bugle}
-    //     }),
-    //     headers: {
-    //         'Content-type': 'application/json; charset=UTF-8'
-    //     }
-    // })
-    //     .then(response => response.json())
-    //     .then(json => console.log(json))
-    //     .catch(error => console.log(error));
+export const follow = async function (friendId) {
+    await fetch('http://localhost:8080/api/v1/follow', {
+        method: 'POST',
+        body: JSON.stringify({
+            myId: userId,
+            theirId: friendId
+        }),
+        headers: {
+            'Content-type': 'application/json'
+        }
+    })
+        .catch(error => console.log(error)); 
 };
 
 
-export const follow = function (friendId) {
-    console.log(`Following ${friendId}`);
-    // fetch(`localhost/api/elkers`, {
-    //     method: 'POST',
-    //     body: JSON.stringify({
-    //         userId: {userId},
-    //         friendId: {friendId},
-    //         action: 'ADD'
-    //     }),
-    //     headers: {
-    //         'Content-type': 'application/json; charset=UTF-8'
-    //     }
-    // })
-    //     .then(response => response.json())
-    //     .then(json => console.log(json))
-    //     .catch(error => console.log(error));
-};
-
-
-export const unfollow = function (friendId) {
-    console.log(`Stopped following ${friendId}`);
-    // fetch(`localhost/api/elkers`, {
-    //     method: 'POST',
-    //     body: JSON.stringify({
-    //         userId: {userId},
-    //         friendId: {friendId},
-    //         action: 'REMOVE'
-    //     }),
-    //     headers: {
-    //         'Content-type': 'application/json; charset=UTF-8'
-    //     }
-    // })
-    //     .then(response => response.json())
-    //     .then(json => console.log(json))
-    //     .catch(error => console.log(error));
+export const unfollow = async function (friendId) {
+    await fetch('http://localhost:8080/api/v1/unfollow', {
+        method: 'POST',
+        body: JSON.stringify({
+            myId: userId,
+            theirId: friendId
+        }),
+        headers: {
+            'Content-type': 'application/json'
+        }
+    })
+        .catch(error => console.log(error)); 
 };
